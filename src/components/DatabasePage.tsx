@@ -390,11 +390,110 @@ const DatabasePage: React.FC = () => {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Offline Earnings</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingEntry.offlineEarnings}
+                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, offlineEarnings: parseFloat(e.target.value) || 0 } : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Offline Cash</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingEntry.offlineCash}
+                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, offlineCash: parseFloat(e.target.value) || 0 } : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Trips</label>
                   <input
                     type="number"
                     value={editingEntry.trips}
                     onChange={(e) => setEditingEntry(prev => prev ? { ...prev, trips: parseInt(e.target.value) || 0 } : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Toll</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingEntry.toll}
+                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, toll: parseFloat(e.target.value) || 0 } : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Login Hours</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingEntry.loginHours}
+                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, loginHours: parseFloat(e.target.value) || 0 } : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">CNG</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingEntry.cng}
+                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, cng: parseFloat(e.target.value) || 0 } : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Petrol</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingEntry.petrol}
+                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, petrol: parseFloat(e.target.value) || 0 } : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Other Expenses</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingEntry.otherExpenses}
+                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, otherExpenses: parseFloat(e.target.value) || 0 } : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Opening Balance</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingEntry.openingBalance}
+                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, openingBalance: parseFloat(e.target.value) || 0 } : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Room Rent</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingEntry.roomRent}
+                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, roomRent: parseFloat(e.target.value) || 0 } : null)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
