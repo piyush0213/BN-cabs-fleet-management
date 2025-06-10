@@ -62,9 +62,9 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
         
         // Add date format options and raw numbers
         const options = {
-          raw: true, // Get raw numbers instead of formatted strings
+          raw: true,
           dateNF: 'yyyy-mm-dd',
-          defval: 0 // Default to 0 for empty cells
+          defval: 0
         };
         
         const jsonData = XLSX.utils.sheet_to_json(worksheet, options);
@@ -75,7 +75,6 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
           if (dateValue instanceof Date) {
             dateValue = dateValue.toISOString().split('T')[0];
           } else if (typeof dateValue === 'number') {
-            // Convert Excel date number to YYYY-MM-DD
             const date = new Date((dateValue - 25569) * 86400 * 1000);
             dateValue = date.toISOString().split('T')[0];
           }
@@ -91,7 +90,13 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
           const otherExpenses = Number(row['Other Expenses'] || row.otherExpenses || 0);
           const roomRent = Number(row['Room Rent'] || row.roomRent || 0);
           const openingBalance = Number(row['Opening Balance'] || row.openingBalance || 0);
-          const salary = Number(row.Salary || row.salary || 0);
+          
+          // Handle salary - try multiple possible column names
+          let salary = 0;
+          if (row.Salary !== undefined) salary = Number(row.Salary);
+          else if (row.salary !== undefined) salary = Number(row.salary);
+          else if (row['Driver Salary'] !== undefined) salary = Number(row['Driver Salary']);
+          else if (row['driver salary'] !== undefined) salary = Number(row['driver salary']);
           
           // Calculate total earnings
           const totalEarnings = earnings + offlineEarnings;
@@ -99,11 +104,11 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
           // Calculate total expenses
           const totalExpenses = toll + cng + petrol + otherExpenses + roomRent;
           
-          // Calculate payable (assuming 80% of earnings goes to driver)
+          // Calculate payable (80% of earnings minus expenses)
           const payable = totalEarnings * 0.8 - totalExpenses;
           
-          // Calculate P&L
-          const pl = totalEarnings - totalExpenses - payable;
+          // Calculate P&L (considering salary)
+          const pl = totalEarnings - totalExpenses - payable - salary;
 
           return {
             id: `imported_${Date.now()}_${index}`,

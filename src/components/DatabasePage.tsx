@@ -120,14 +120,15 @@ const DatabasePage: React.FC = () => {
     const totalExpenses = entry.toll + entry.cng + entry.petrol + 
                          entry.otherExpenses + entry.roomRent;
     const payable = totalEarnings * 0.8 - totalExpenses;
-    const pl = totalEarnings - totalExpenses - payable;
+    const pl = totalEarnings - totalExpenses - payable - (entry.salary || 0);
 
     setEditingEntry({ 
       ...entry,
       payPercent: 80,
       commission: totalEarnings * 0.2,
       payable: payable,
-      pl: pl
+      pl: pl,
+      salary: entry.salary || 0 // Ensure salary is not undefined
     });
   };
 
@@ -144,16 +145,17 @@ const DatabasePage: React.FC = () => {
     // Calculate payable (80% of earnings minus expenses)
     const payable = totalEarnings * 0.8 - totalExpenses;
     
-    // Calculate P&L
-    const pl = totalEarnings - totalExpenses - payable;
+    // Calculate P&L (considering salary)
+    const pl = totalEarnings - totalExpenses - payable - editingEntry.salary;
 
     // Update the entry with calculated values
     const updatedEntry = {
       ...editingEntry,
-      payPercent: 80, // Default pay percentage
-      commission: totalEarnings * 0.2, // 20% commission
+      payPercent: 80,
+      commission: totalEarnings * 0.2,
       payable: payable,
-      pl: pl
+      pl: pl,
+      salary: editingEntry.salary || 0 // Ensure salary is not undefined
     };
 
     const allEntries = getEntries();
@@ -529,6 +531,31 @@ const DatabasePage: React.FC = () => {
                     step="0.01"
                     value={editingEntry.roomRent}
                     onChange={(e) => setEditingEntry(prev => prev ? { ...prev, roomRent: parseFloat(e.target.value) || 0 } : null)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Salary</label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={editingEntry.salary}
+                    onChange={(e) => {
+                      const salary = parseFloat(e.target.value) || 0;
+                      const totalEarnings = editingEntry.earnings + editingEntry.offlineEarnings;
+                      const totalExpenses = editingEntry.toll + editingEntry.cng + editingEntry.petrol + 
+                                          editingEntry.otherExpenses + editingEntry.roomRent;
+                      const payable = totalEarnings * 0.8 - totalExpenses;
+                      const pl = totalEarnings - totalExpenses - payable - salary;
+                      
+                      setEditingEntry(prev => prev ? {
+                        ...prev,
+                        salary: salary,
+                        payable: payable,
+                        pl: pl
+                      } : null);
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
