@@ -115,15 +115,50 @@ const DatabasePage: React.FC = () => {
   };
 
   const handleEdit = (entry: Entry) => {
-    setEditingEntry({ ...entry });
+    // Calculate values before setting editing entry
+    const totalEarnings = entry.earnings + entry.offlineEarnings;
+    const totalExpenses = entry.toll + entry.cng + entry.petrol + 
+                         entry.otherExpenses + entry.roomRent;
+    const payable = totalEarnings * 0.8 - totalExpenses;
+    const pl = totalEarnings - totalExpenses - payable;
+
+    setEditingEntry({ 
+      ...entry,
+      payPercent: 80,
+      commission: totalEarnings * 0.2,
+      payable: payable,
+      pl: pl
+    });
   };
 
   const handleSaveEdit = () => {
     if (!editingEntry) return;
 
+    // Calculate total earnings
+    const totalEarnings = editingEntry.earnings + editingEntry.offlineEarnings;
+    
+    // Calculate total expenses
+    const totalExpenses = editingEntry.toll + editingEntry.cng + editingEntry.petrol + 
+                         editingEntry.otherExpenses + editingEntry.roomRent;
+    
+    // Calculate payable (80% of earnings minus expenses)
+    const payable = totalEarnings * 0.8 - totalExpenses;
+    
+    // Calculate P&L
+    const pl = totalEarnings - totalExpenses - payable;
+
+    // Update the entry with calculated values
+    const updatedEntry = {
+      ...editingEntry,
+      payPercent: 80, // Default pay percentage
+      commission: totalEarnings * 0.2, // 20% commission
+      payable: payable,
+      pl: pl
+    };
+
     const allEntries = getEntries();
     const updatedEntries = allEntries.map(entry => 
-      entry.id === editingEntry.id ? editingEntry : entry
+      entry.id === updatedEntry.id ? updatedEntry : entry
     );
     saveEntries(updatedEntries);
     setEditingEntry(null);

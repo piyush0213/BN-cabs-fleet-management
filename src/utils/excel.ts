@@ -60,11 +60,11 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
         
-        // Add date format options
+        // Add date format options and raw numbers
         const options = {
-          raw: false,
+          raw: true, // Get raw numbers instead of formatted strings
           dateNF: 'yyyy-mm-dd',
-          defval: ''
+          defval: 0 // Default to 0 for empty cells
         };
         
         const jsonData = XLSX.utils.sheet_to_json(worksheet, options);
@@ -80,17 +80,18 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
             dateValue = date.toISOString().split('T')[0];
           }
 
-          // Calculate payable and P&L
-          const earnings = parseFloat(row.Earnings || row.earnings || 0);
-          const cashCollection = parseFloat(row['Cash Collection'] || row.cashCollection || 0);
-          const offlineEarnings = parseFloat(row['Offline Earnings'] || row.offlineEarnings || 0);
-          const offlineCash = parseFloat(row['Offline Cash'] || row.offlineCash || 0);
-          const toll = parseFloat(row.Toll || row.toll || 0);
-          const cng = parseFloat(row.CNG || row.cng || 0);
-          const petrol = parseFloat(row.Petrol || row.petrol || 0);
-          const otherExpenses = parseFloat(row['Other Expenses'] || row.otherExpenses || 0);
-          const roomRent = parseFloat(row['Room Rent'] || row.roomRent || 0);
-          const openingBalance = parseFloat(row['Opening Balance'] || row.openingBalance || 0);
+          // Parse all numeric values, defaulting to 0 if undefined
+          const earnings = Number(row.Earnings || row.earnings || 0);
+          const cashCollection = Number(row['Cash Collection'] || row.cashCollection || 0);
+          const offlineEarnings = Number(row['Offline Earnings'] || row.offlineEarnings || 0);
+          const offlineCash = Number(row['Offline Cash'] || row.offlineCash || 0);
+          const toll = Number(row.Toll || row.toll || 0);
+          const cng = Number(row.CNG || row.cng || 0);
+          const petrol = Number(row.Petrol || row.petrol || 0);
+          const otherExpenses = Number(row['Other Expenses'] || row.otherExpenses || 0);
+          const roomRent = Number(row['Room Rent'] || row.roomRent || 0);
+          const openingBalance = Number(row['Opening Balance'] || row.openingBalance || 0);
+          const salary = Number(row.Salary || row.salary || 0);
           
           // Calculate total earnings
           const totalEarnings = earnings + offlineEarnings;
@@ -107,30 +108,31 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
           return {
             id: `imported_${Date.now()}_${index}`,
             date: dateValue,
-            driver: row.Driver || row.driver || '',
-            vehicle: row.Vehicle || row.vehicle || '',
+            driver: String(row.Driver || row.driver || ''),
+            vehicle: String(row.Vehicle || row.vehicle || ''),
             earnings: totalEarnings,
             cashCollection: cashCollection,
             offlineEarnings: offlineEarnings,
             offlineCash: offlineCash,
-            trips: parseInt(row.Trips || row.trips || 0),
+            trips: Number(row.Trips || row.trips || 0),
             toll: toll,
             cng: cng,
             petrol: petrol,
             otherExpenses: otherExpenses,
-            loginHours: parseFloat(row['Login Hrs'] || row.loginHours || 0),
+            loginHours: Number(row['Login Hrs'] || row.loginHours || 0),
             openingBalance: openingBalance,
             roomRent: roomRent,
-            payPercent: 80, // Default pay percentage
-            salary: parseFloat(row.Salary || row.salary || 0),
+            payPercent: 80,
+            salary: salary,
             payable: payable,
-            commission: totalEarnings * 0.2, // 20% commission
+            commission: totalEarnings * 0.2,
             pl: pl
           };
         });
 
         resolve(entries);
       } catch (error) {
+        console.error('Import error details:', error);
         reject(error);
       }
     };
