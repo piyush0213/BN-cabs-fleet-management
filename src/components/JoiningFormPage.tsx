@@ -274,7 +274,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.fatherName}
                     onChange={(e) => setFormData(prev => ({ ...prev, fatherName: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
@@ -286,7 +286,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.dob}
                     onChange={(e) => setFormData(prev => ({ ...prev, dob: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
@@ -320,7 +320,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.email}
                     onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
@@ -332,7 +332,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.dlNumber}
                     onChange={(e) => setFormData(prev => ({ ...prev, dlNumber: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
@@ -357,7 +357,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.aadharNumber}
                     onChange={(e) => setFormData(prev => ({ ...prev, aadharNumber: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
@@ -417,7 +417,7 @@ const JoiningFormPage: React.FC = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, permanentAddress: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows={3}
-                    required
+                    
                   />
                 </div>
 
@@ -428,7 +428,7 @@ const JoiningFormPage: React.FC = () => {
                     onChange={(e) => setFormData(prev => ({ ...prev, presentAddress: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     rows={3}
-                    required
+                    
                   />
                 </div>
 
@@ -440,7 +440,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.reference1Name}
                     onChange={(e) => setFormData(prev => ({ ...prev, reference1Name: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
@@ -451,7 +451,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.reference2Name}
                     onChange={(e) => setFormData(prev => ({ ...prev, reference2Name: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
@@ -463,7 +463,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.reference1Relationship}
                     onChange={(e) => setFormData(prev => ({ ...prev, reference1Relationship: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
@@ -474,7 +474,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.reference2Relationship}
                     onChange={(e) => setFormData(prev => ({ ...prev, reference2Relationship: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
@@ -486,7 +486,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.reference1Mobile}
                     onChange={(e) => setFormData(prev => ({ ...prev, reference1Mobile: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
@@ -497,7 +497,7 @@ const JoiningFormPage: React.FC = () => {
                     value={formData.reference2Mobile}
                     onChange={(e) => setFormData(prev => ({ ...prev, reference2Mobile: e.target.value }))}
                     className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                    required
+                    
                   />
                 </div>
 
