@@ -23,7 +23,8 @@ const WeeklySummaryPage: React.FC = () => {
 
   const getWeekStart = (date: Date): Date => {
     const day = date.getDay();
-    const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Monday start
+    // Adjust to get Monday (1) as start of week
+    const diff = date.getDate() - (day === 0 ? 6 : day - 1);
     const weekStart = new Date(date);
     weekStart.setDate(diff);
     weekStart.setHours(0, 0, 0, 0);
@@ -33,7 +34,7 @@ const WeeklySummaryPage: React.FC = () => {
   const getWeekEnd = (date: Date): Date => {
     const weekStart = getWeekStart(new Date(date));
     const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6);
+    weekEnd.setDate(weekStart.getDate() + 6); // Add 6 days to get to Sunday
     weekEnd.setHours(23, 59, 59, 999);
     return weekEnd;
   };
