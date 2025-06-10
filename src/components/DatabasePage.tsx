@@ -114,6 +114,35 @@ const DatabasePage: React.FC = () => {
     event.target.value = '';
   };
 
+  const calculatePayPercent = (totalEarnings: number, loginHours: number) => {
+    let payPercent = 0;
+
+    if (totalEarnings < 1800) {
+      payPercent = 0;
+    } else if (totalEarnings < 2500) {
+      payPercent = 25;
+    } else if (totalEarnings < 4000) {
+      payPercent = 30;
+    } else if (totalEarnings < 5000) {
+      payPercent = 32;
+    } else if (totalEarnings < 6000) {
+      payPercent = 34;
+    } else if (totalEarnings < 7000) {
+      payPercent = 38;
+    } else {
+      payPercent = 38;
+    }
+
+    // Reduce pay% based on login hours
+    if (loginHours < 9) {
+      payPercent -= 10;
+    } else if (loginHours < 11) {
+      payPercent -= 5;
+    }
+
+    return payPercent;
+  };
+
   const calculateValues = (entry: Entry) => {
     // Calculate total earnings
     const totalEarnings = entry.earnings + entry.offlineEarnings;
@@ -122,8 +151,11 @@ const DatabasePage: React.FC = () => {
     const totalExpenses = entry.toll + entry.cng + entry.petrol + 
                          entry.otherExpenses + entry.roomRent;
     
-    // Calculate salary (if not set, use 20% of total earnings)
-    const salary = entry.salary || (totalEarnings * 0.2);
+    // Calculate pay percent based on earnings and login hours
+    const payPercent = calculatePayPercent(totalEarnings, entry.loginHours);
+    
+    // Calculate salary based on pay percent
+    const salary = (totalEarnings * payPercent) / 100;
     
     // Calculate payable (earnings minus expenses minus salary)
     const payable = totalEarnings - totalExpenses - salary;
@@ -134,6 +166,7 @@ const DatabasePage: React.FC = () => {
     return {
       totalEarnings,
       totalExpenses,
+      payPercent,
       salary,
       payable,
       pl
@@ -145,8 +178,8 @@ const DatabasePage: React.FC = () => {
     
     setEditingEntry({ 
       ...entry,
-      payPercent: 80,
-      commission: calculated.totalEarnings * 0.2,
+      payPercent: calculated.payPercent,
+      commission: calculated.totalEarnings * (100 - calculated.payPercent) / 100,
       salary: calculated.salary,
       payable: calculated.payable,
       pl: calculated.pl
@@ -161,8 +194,8 @@ const DatabasePage: React.FC = () => {
     // Update the entry with calculated values
     const updatedEntry = {
       ...editingEntry,
-      payPercent: 80,
-      commission: calculated.totalEarnings * 0.2,
+      payPercent: calculated.payPercent,
+      commission: calculated.totalEarnings * (100 - calculated.payPercent) / 100,
       salary: calculated.salary,
       payable: calculated.payable,
       pl: calculated.pl
@@ -420,7 +453,26 @@ const DatabasePage: React.FC = () => {
                     type="number"
                     step="0.01"
                     value={editingEntry.earnings}
-                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, earnings: parseFloat(e.target.value) || 0 } : null)}
+                    onChange={(e) => {
+                      const newEarnings = parseFloat(e.target.value) || 0;
+                      const totalEarnings = newEarnings + editingEntry.offlineEarnings;
+                      const payPercent = calculatePayPercent(totalEarnings, editingEntry.loginHours);
+                      const salary = (totalEarnings * payPercent) / 100;
+                      const totalExpenses = editingEntry.toll + editingEntry.cng + editingEntry.petrol + 
+                                          editingEntry.otherExpenses + editingEntry.roomRent;
+                      const payable = totalEarnings - totalExpenses - salary;
+                      const pl = totalEarnings - totalExpenses - salary;
+                      
+                      setEditingEntry(prev => prev ? {
+                        ...prev,
+                        earnings: newEarnings,
+                        payPercent: payPercent,
+                        commission: totalEarnings * (100 - payPercent) / 100,
+                        salary: salary,
+                        payable: payable,
+                        pl: pl
+                      } : null);
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -485,7 +537,26 @@ const DatabasePage: React.FC = () => {
                     type="number"
                     step="0.01"
                     value={editingEntry.loginHours}
-                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, loginHours: parseFloat(e.target.value) || 0 } : null)}
+                    onChange={(e) => {
+                      const newLoginHours = parseFloat(e.target.value) || 0;
+                      const totalEarnings = editingEntry.earnings + editingEntry.offlineEarnings;
+                      const payPercent = calculatePayPercent(totalEarnings, newLoginHours);
+                      const salary = (totalEarnings * payPercent) / 100;
+                      const totalExpenses = editingEntry.toll + editingEntry.cng + editingEntry.petrol + 
+                                          editingEntry.otherExpenses + editingEntry.roomRent;
+                      const payable = totalEarnings - totalExpenses - salary;
+                      const pl = totalEarnings - totalExpenses - salary;
+                      
+                      setEditingEntry(prev => prev ? {
+                        ...prev,
+                        loginHours: newLoginHours,
+                        payPercent: payPercent,
+                        commission: totalEarnings * (100 - payPercent) / 100,
+                        salary: salary,
+                        payable: payable,
+                        pl: pl
+                      } : null);
+                    }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -546,30 +617,22 @@ const DatabasePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Salary</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Pay Percent</label>
                   <input
-                    type="number"
-                    step="0.01"
-                    value={editingEntry.salary}
-                    onChange={(e) => {
-                      const newSalary = parseFloat(e.target.value) || 0;
-                      const totalEarnings = editingEntry.earnings + editingEntry.offlineEarnings;
-                      const totalExpenses = editingEntry.toll + editingEntry.cng + editingEntry.petrol + 
-                                          editingEntry.otherExpenses + editingEntry.roomRent;
-                      
-                      // Calculate new payable and P&L based on new salary
-                      const payable = totalEarnings - totalExpenses - newSalary;
-                      const pl = totalEarnings - totalExpenses - newSalary;
-                      
-                      setEditingEntry(prev => prev ? {
-                        ...prev,
-                        salary: newSalary,
-                        payable: payable,
-                        pl: pl,
-                        commission: totalEarnings * 0.2
-                      } : null);
-                    }}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    type="text"
+                    value={`${editingEntry.payPercent}%`}
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Salary (Auto Calculated)</label>
+                  <input
+                    type="text"
+                    value={formatCurrency(editingEntry.salary)}
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50"
                   />
                 </div>
               </div>

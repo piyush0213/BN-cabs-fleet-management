@@ -50,6 +50,35 @@ export const exportWeeklySummaryToExcel = (data: WeeklySummary[], filename: stri
   XLSX.writeFile(workbook, filename);
 };
 
+const calculatePayPercent = (totalEarnings: number, loginHours: number) => {
+  let payPercent = 0;
+
+  if (totalEarnings < 1800) {
+    payPercent = 0;
+  } else if (totalEarnings < 2500) {
+    payPercent = 25;
+  } else if (totalEarnings < 4000) {
+    payPercent = 30;
+  } else if (totalEarnings < 5000) {
+    payPercent = 32;
+  } else if (totalEarnings < 6000) {
+    payPercent = 34;
+  } else if (totalEarnings < 7000) {
+    payPercent = 38;
+  } else {
+    payPercent = 38;
+  }
+
+  // Reduce pay% based on login hours
+  if (loginHours < 9) {
+    payPercent -= 10;
+  } else if (loginHours < 11) {
+    payPercent -= 5;
+  }
+
+  return payPercent;
+};
+
 export const importFromExcel = (file: File): Promise<Entry[]> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -89,6 +118,7 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
           const otherExpenses = Number(row['Other Expenses'] || row.otherExpenses || 0);
           const roomRent = Number(row['Room Rent'] || row.roomRent || 0);
           const openingBalance = Number(row['Opening Balance'] || row.openingBalance || 0);
+          const loginHours = Number(row['Login Hrs'] || row.loginHours || 0);
           
           // Calculate total earnings
           const totalEarnings = earnings + offlineEarnings;
@@ -96,17 +126,11 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
           // Calculate total expenses
           const totalExpenses = toll + cng + petrol + otherExpenses + roomRent;
           
-          // Handle salary - try multiple possible column names
-          let salary = 0;
-          if (row.Salary !== undefined) salary = Number(row.Salary);
-          else if (row.salary !== undefined) salary = Number(row.salary);
-          else if (row['Driver Salary'] !== undefined) salary = Number(row['Driver Salary']);
-          else if (row['driver salary'] !== undefined) salary = Number(row['driver salary']);
+          // Calculate pay percent based on earnings and login hours
+          const payPercent = calculatePayPercent(totalEarnings, loginHours);
           
-          // If no salary found, use 20% of total earnings as default
-          if (!salary) {
-            salary = totalEarnings * 0.2;
-          }
+          // Calculate salary based on pay percent
+          const salary = (totalEarnings * payPercent) / 100;
           
           // Calculate payable (earnings minus expenses minus salary)
           const payable = totalEarnings - totalExpenses - salary;
@@ -128,13 +152,13 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
             cng: cng,
             petrol: petrol,
             otherExpenses: otherExpenses,
-            loginHours: Number(row['Login Hrs'] || row.loginHours || 0),
+            loginHours: loginHours,
             openingBalance: openingBalance,
             roomRent: roomRent,
-            payPercent: 80,
+            payPercent: payPercent,
             salary: salary,
             payable: payable,
-            commission: totalEarnings * 0.2,
+            commission: totalEarnings * (100 - payPercent) / 100,
             pl: pl
           };
         });
