@@ -22,21 +22,23 @@ const WeeklySummaryPage: React.FC = () => {
   }, []);
 
   const getWeekStart = (date: Date): Date => {
-    const day = date.getDay();
-    // Adjust to get Monday (1) as start of week
-    const diff = date.getDate() - (day === 0 ? 6 : day - 1);
-    const weekStart = new Date(date);
-    weekStart.setDate(diff);
-    weekStart.setHours(0, 0, 0, 0);
-    return weekStart;
+    const currentDate = new Date(date);
+    const day = currentDate.getDay();
+    // For Sunday (0), we want to get the previous Monday
+    // For other days, we want to get the current week's Monday
+    const mondayOffset = day === 0 ? -6 : 1 - day;
+    const monday = new Date(currentDate);
+    monday.setDate(currentDate.getDate() + mondayOffset);
+    monday.setHours(0, 0, 0, 0);
+    return monday;
   };
 
   const getWeekEnd = (date: Date): Date => {
-    const weekStart = getWeekStart(new Date(date));
-    const weekEnd = new Date(weekStart);
-    weekEnd.setDate(weekStart.getDate() + 6); // Add 6 days to get to Sunday
-    weekEnd.setHours(23, 59, 59, 999);
-    return weekEnd;
+    const monday = getWeekStart(new Date(date));
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    return sunday;
   };
 
   const generateWeeklySummaries = () => {
