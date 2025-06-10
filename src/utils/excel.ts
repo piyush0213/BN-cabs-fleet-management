@@ -59,31 +59,75 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
         const workbook = XLSX.read(data, { type: 'binary' });
         const sheetName = workbook.SheetNames[0];
         const worksheet = workbook.Sheets[sheetName];
-        const jsonData = XLSX.utils.sheet_to_json(worksheet);
+        
+        // Add date format options
+        const options = {
+          raw: false,
+          dateNF: 'yyyy-mm-dd',
+          defval: ''
+        };
+        
+        const jsonData = XLSX.utils.sheet_to_json(worksheet, options);
 
-        const entries: Entry[] = jsonData.map((row: any, index: number) => ({
-          id: `imported_${Date.now()}_${index}`,
-          date: row.Date || row.date || '',
-          driver: row.Driver || row.driver || '',
-          vehicle: row.Vehicle || row.vehicle || '',
-          earnings: parseFloat(row.Earnings || row.earnings || 0),
-          cashCollection: parseFloat(row['Cash Collection'] || row.cashCollection || 0),
-          offlineEarnings: parseFloat(row['Offline Earnings'] || row.offlineEarnings || 0),
-          offlineCash: parseFloat(row['Offline Cash'] || row.offlineCash || 0),
-          trips: parseInt(row.Trips || row.trips || 0),
-          toll: parseFloat(row.Toll || row.toll || 0),
-          cng: parseFloat(row.CNG || row.cng || 0),
-          petrol: parseFloat(row.Petrol || row.petrol || 0),
-          otherExpenses: parseFloat(row['Other Expenses'] || row.otherExpenses || 0),
-          loginHours: parseFloat(row['Login Hrs'] || row.loginHours || 0),
-          openingBalance: parseFloat(row['Opening Balance'] || row.openingBalance || 0),
-          roomRent: parseFloat(row['Room Rent'] || row.roomRent || 0),
-          payPercent: 0,
-          salary: 0,
-          payable: 0,
-          commission: 0,
-          pl: 0
-        }));
+        const entries: Entry[] = jsonData.map((row: any, index: number) => {
+          // Handle date format
+          let dateValue = row.Date || row.date || '';
+          if (dateValue instanceof Date) {
+            dateValue = dateValue.toISOString().split('T')[0];
+          } else if (typeof dateValue === 'number') {
+            // Convert Excel date number to YYYY-MM-DD
+            const date = new Date((dateValue - 25569) * 86400 * 1000);
+            dateValue = date.toISOString().split('T')[0];
+          }
+
+          // Calculate payable and P&L
+          const earnings = parseFloat(row.Earnings || row.earnings || 0);
+          const cashCollection = parseFloat(row['Cash Collection'] || row.cashCollection || 0);
+          const offlineEarnings = parseFloat(row['Offline Earnings'] || row.offlineEarnings || 0);
+          const offlineCash = parseFloat(row['Offline Cash'] || row.offlineCash || 0);
+          const toll = parseFloat(row.Toll || row.toll || 0);
+          const cng = parseFloat(row.CNG || row.cng || 0);
+          const petrol = parseFloat(row.Petrol || row.petrol || 0);
+          const otherExpenses = parseFloat(row['Other Expenses'] || row.otherExpenses || 0);
+          const roomRent = parseFloat(row['Room Rent'] || row.roomRent || 0);
+          const openingBalance = parseFloat(row['Opening Balance'] || row.openingBalance || 0);
+          
+          // Calculate total earnings
+          const totalEarnings = earnings + offlineEarnings;
+          
+          // Calculate total expenses
+          const totalExpenses = toll + cng + petrol + otherExpenses + roomRent;
+          
+          // Calculate payable (assuming 80% of earnings goes to driver)
+          const payable = totalEarnings * 0.8 - totalExpenses;
+          
+          // Calculate P&L
+          const pl = totalEarnings - totalExpenses - payable;
+
+          return {
+            id: `imported_${Date.now()}_${index}`,
+            date: dateValue,
+            driver: row.Driver || row.driver || '',
+            vehicle: row.Vehicle || row.vehicle || '',
+            earnings: totalEarnings,
+            cashCollection: cashCollection,
+            offlineEarnings: offlineEarnings,
+            offlineCash: offlineCash,
+            trips: parseInt(row.Trips || row.trips || 0),
+            toll: toll,
+            cng: cng,
+            petrol: petrol,
+            otherExpenses: otherExpenses,
+            loginHours: parseFloat(row['Login Hrs'] || row.loginHours || 0),
+            openingBalance: openingBalance,
+            roomRent: roomRent,
+            payPercent: 80, // Default pay percentage
+            salary: parseFloat(row.Salary || row.salary || 0),
+            payable: payable,
+            commission: totalEarnings * 0.2, // 20% commission
+            pl: pl
+          };
+        });
 
         resolve(entries);
       } catch (error) {
