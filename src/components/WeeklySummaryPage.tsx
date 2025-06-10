@@ -22,19 +22,24 @@ const WeeklySummaryPage: React.FC = () => {
   }, []);
 
   const getWeekStart = (date: Date): Date => {
-    const currentDate = new Date(date);
-    const day = currentDate.getDay();
-    // For Sunday (0), we want to get the previous Monday
-    // For other days, we want to get the current week's Monday
-    const mondayOffset = day === 0 ? -6 : 1 - day;
-    const monday = new Date(currentDate);
-    monday.setDate(currentDate.getDate() + mondayOffset);
+    const d = new Date(date);
+    // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+    const day = d.getDay();
+    
+    // Calculate days to subtract to get to Monday
+    // If it's Sunday (0), we need to go back 6 days to get to last Monday
+    // For other days, we need to go back (day - 1) days to get to Monday
+    const daysToSubtract = day === 0 ? 6 : day - 1;
+    
+    // Create new date and set to Monday
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - daysToSubtract);
     monday.setHours(0, 0, 0, 0);
     return monday;
   };
 
   const getWeekEnd = (date: Date): Date => {
-    const monday = getWeekStart(new Date(date));
+    const monday = getWeekStart(date);
     const sunday = new Date(monday);
     sunday.setDate(monday.getDate() + 6);
     sunday.setHours(23, 59, 59, 999);
@@ -65,6 +70,12 @@ const WeeklySummaryPage: React.FC = () => {
       const entryDate = new Date(entry.date);
       const weekStart = getWeekStart(entryDate);
       const weekEnd = getWeekEnd(entryDate);
+      
+      // Debug log to verify week calculations
+      console.log(`Entry date: ${entry.date}`);
+      console.log(`Week start: ${weekStart.toISOString().split('T')[0]}`);
+      console.log(`Week end: ${weekEnd.toISOString().split('T')[0]}`);
+      
       const weekKey = `${weekStart.toISOString().split('T')[0]}_${weekEnd.toISOString().split('T')[0]}_${entry.vehicle}`;
 
       if (!weeklyGroups[weekKey]) {
