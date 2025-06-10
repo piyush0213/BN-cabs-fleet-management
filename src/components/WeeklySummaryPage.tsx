@@ -26,10 +26,10 @@ const WeeklySummaryPage: React.FC = () => {
     const day = d.getDay(); // 0 (Sunday) to 6 (Saturday)
     
     // Calculate days to subtract to get to Monday
-    // If it's Sunday (0), we need to go back 6 days to get to last Monday
-    // For Monday (1), no change needed
+    // If it's Sunday (0), we need to add 1 day to get to next Monday
+    // If it's Monday (1), no change needed
     // For other days, we need to go back (day - 1) days to get to Monday
-    const daysToSubtract = day === 0 ? 6 : day - 1;
+    const daysToSubtract = day === 0 ? -1 : day - 1;
     
     const monday = new Date(d);
     monday.setDate(d.getDate() - daysToSubtract);
