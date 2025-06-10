@@ -123,20 +123,17 @@ export const importFromExcel = (file: File): Promise<Entry[]> => {
           // Calculate total earnings
           const totalEarnings = earnings + offlineEarnings;
           
-          // Calculate total expenses
-          const totalExpenses = toll + cng + petrol + otherExpenses + roomRent;
-          
           // Calculate pay percent based on earnings and login hours
           const payPercent = calculatePayPercent(totalEarnings, loginHours);
           
           // Calculate salary based on pay percent
           const salary = (totalEarnings * payPercent) / 100;
           
-          // Calculate payable (earnings minus expenses minus salary)
-          const payable = totalEarnings - totalExpenses - salary;
+          // Calculate payable: Cash Collection - Salary - CNG - Petrol - Other Expenses + Opening Balance + Room Rent
+          const payable = cashCollection - salary - cng - petrol - otherExpenses + openingBalance + roomRent;
           
-          // Calculate P&L (same as payable in this case)
-          const pl = totalEarnings - totalExpenses - salary;
+          // Calculate P&L: totalEarnings - Salary - CNG - Toll - Petrol - Other Expenses - 1080
+          const pl = totalEarnings - salary - cng - toll - petrol - otherExpenses - 1080;
 
           return {
             id: `imported_${Date.now()}_${index}`,

@@ -147,25 +147,22 @@ const DatabasePage: React.FC = () => {
     // Calculate total earnings
     const totalEarnings = entry.earnings + entry.offlineEarnings;
     
-    // Calculate total expenses
-    const totalExpenses = entry.toll + entry.cng + entry.petrol + 
-                         entry.otherExpenses + entry.roomRent;
-    
     // Calculate pay percent based on earnings and login hours
     const payPercent = calculatePayPercent(totalEarnings, entry.loginHours);
     
     // Calculate salary based on pay percent
     const salary = (totalEarnings * payPercent) / 100;
     
-    // Calculate payable (earnings minus expenses minus salary)
-    const payable = totalEarnings - totalExpenses - salary;
+    // Calculate payable: Cash Collection - Salary - CNG - Petrol - Other Expenses + Opening Balance + Room Rent
+    const payable = entry.cashCollection - salary - entry.cng - entry.petrol - 
+                   entry.otherExpenses + entry.openingBalance + entry.roomRent;
     
-    // Calculate P&L (earnings minus expenses minus salary)
-    const pl = totalEarnings - totalExpenses - salary;
+    // Calculate P&L: totalEarnings - Salary - CNG - Toll - Petrol - Other Expenses - 1080
+    const pl = totalEarnings - salary - entry.cng - entry.toll - entry.petrol - 
+               entry.otherExpenses - 1080;
 
     return {
       totalEarnings,
-      totalExpenses,
       payPercent,
       salary,
       payable,
@@ -219,6 +216,34 @@ const DatabasePage: React.FC = () => {
       loadData();
       alert('Entry deleted successfully');
     }
+  };
+
+  // Update the onChange handlers for all relevant fields
+  const updateCalculations = (field: string, value: number) => {
+    if (!editingEntry) return;
+
+    const updatedEntry = { ...editingEntry, [field]: value };
+    const totalEarnings = updatedEntry.earnings + updatedEntry.offlineEarnings;
+    const payPercent = calculatePayPercent(totalEarnings, updatedEntry.loginHours);
+    const salary = (totalEarnings * payPercent) / 100;
+    
+    // Calculate payable
+    const payable = updatedEntry.cashCollection - salary - updatedEntry.cng - 
+                   updatedEntry.petrol - updatedEntry.otherExpenses + 
+                   updatedEntry.openingBalance + updatedEntry.roomRent;
+    
+    // Calculate P&L
+    const pl = totalEarnings - salary - updatedEntry.cng - updatedEntry.toll - 
+               updatedEntry.petrol - updatedEntry.otherExpenses - 1080;
+
+    setEditingEntry({
+      ...updatedEntry,
+      payPercent: payPercent,
+      commission: totalEarnings * (100 - payPercent) / 100,
+      salary: salary,
+      payable: payable,
+      pl: pl
+    });
   };
 
   return (
@@ -453,26 +478,7 @@ const DatabasePage: React.FC = () => {
                     type="number"
                     step="0.01"
                     value={editingEntry.earnings}
-                    onChange={(e) => {
-                      const newEarnings = parseFloat(e.target.value) || 0;
-                      const totalEarnings = newEarnings + editingEntry.offlineEarnings;
-                      const payPercent = calculatePayPercent(totalEarnings, editingEntry.loginHours);
-                      const salary = (totalEarnings * payPercent) / 100;
-                      const totalExpenses = editingEntry.toll + editingEntry.cng + editingEntry.petrol + 
-                                          editingEntry.otherExpenses + editingEntry.roomRent;
-                      const payable = totalEarnings - totalExpenses - salary;
-                      const pl = totalEarnings - totalExpenses - salary;
-                      
-                      setEditingEntry(prev => prev ? {
-                        ...prev,
-                        earnings: newEarnings,
-                        payPercent: payPercent,
-                        commission: totalEarnings * (100 - payPercent) / 100,
-                        salary: salary,
-                        payable: payable,
-                        pl: pl
-                      } : null);
-                    }}
+                    onChange={(e) => updateCalculations('earnings', parseFloat(e.target.value) || 0)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
@@ -483,7 +489,7 @@ const DatabasePage: React.FC = () => {
                     type="number"
                     step="0.01"
                     value={editingEntry.cashCollection}
-                    onChange={(e) => setEditingEntry(prev => prev ? { ...prev, cashCollection: parseFloat(e.target.value) || 0 } : null)}
+                    onChange={(e) => updateCalculations('cashCollection', parseFloat(e.target.value) || 0)}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>
