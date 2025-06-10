@@ -114,48 +114,58 @@ const DatabasePage: React.FC = () => {
     event.target.value = '';
   };
 
-  const handleEdit = (entry: Entry) => {
-    // Calculate values before setting editing entry
+  const calculateValues = (entry: Entry) => {
+    // Calculate total earnings
     const totalEarnings = entry.earnings + entry.offlineEarnings;
+    
+    // Calculate total expenses
     const totalExpenses = entry.toll + entry.cng + entry.petrol + 
                          entry.otherExpenses + entry.roomRent;
-    const payable = totalEarnings * 0.8 - totalExpenses;
-    const pl = totalEarnings - totalExpenses - payable - (entry.salary || 0);
+    
+    // Calculate salary (if not set, use 20% of total earnings)
+    const salary = entry.salary || (totalEarnings * 0.2);
+    
+    // Calculate payable (earnings minus expenses minus salary)
+    const payable = totalEarnings - totalExpenses - salary;
+    
+    // Calculate P&L (earnings minus expenses minus salary)
+    const pl = totalEarnings - totalExpenses - salary;
 
+    return {
+      totalEarnings,
+      totalExpenses,
+      salary,
+      payable,
+      pl
+    };
+  };
+
+  const handleEdit = (entry: Entry) => {
+    const calculated = calculateValues(entry);
+    
     setEditingEntry({ 
       ...entry,
       payPercent: 80,
-      commission: totalEarnings * 0.2,
-      payable: payable,
-      pl: pl,
-      salary: entry.salary || 0 // Ensure salary is not undefined
+      commission: calculated.totalEarnings * 0.2,
+      salary: calculated.salary,
+      payable: calculated.payable,
+      pl: calculated.pl
     });
   };
 
   const handleSaveEdit = () => {
     if (!editingEntry) return;
 
-    // Calculate total earnings
-    const totalEarnings = editingEntry.earnings + editingEntry.offlineEarnings;
-    
-    // Calculate total expenses
-    const totalExpenses = editingEntry.toll + editingEntry.cng + editingEntry.petrol + 
-                         editingEntry.otherExpenses + editingEntry.roomRent;
-    
-    // Calculate payable (80% of earnings minus expenses)
-    const payable = totalEarnings * 0.8 - totalExpenses;
-    
-    // Calculate P&L (considering salary)
-    const pl = totalEarnings - totalExpenses - payable - editingEntry.salary;
+    const calculated = calculateValues(editingEntry);
 
     // Update the entry with calculated values
     const updatedEntry = {
       ...editingEntry,
       payPercent: 80,
-      commission: totalEarnings * 0.2,
-      payable: payable,
-      pl: pl,
-      salary: editingEntry.salary || 0 // Ensure salary is not undefined
+      commission: calculated.totalEarnings * 0.2,
+      salary: calculated.salary,
+      payable: calculated.payable,
+      pl: calculated.pl
     };
 
     const allEntries = getEntries();
@@ -542,18 +552,21 @@ const DatabasePage: React.FC = () => {
                     step="0.01"
                     value={editingEntry.salary}
                     onChange={(e) => {
-                      const salary = parseFloat(e.target.value) || 0;
+                      const newSalary = parseFloat(e.target.value) || 0;
                       const totalEarnings = editingEntry.earnings + editingEntry.offlineEarnings;
                       const totalExpenses = editingEntry.toll + editingEntry.cng + editingEntry.petrol + 
                                           editingEntry.otherExpenses + editingEntry.roomRent;
-                      const payable = totalEarnings * 0.8 - totalExpenses;
-                      const pl = totalEarnings - totalExpenses - payable - salary;
+                      
+                      // Calculate new payable and P&L based on new salary
+                      const payable = totalEarnings - totalExpenses - newSalary;
+                      const pl = totalEarnings - totalExpenses - newSalary;
                       
                       setEditingEntry(prev => prev ? {
                         ...prev,
-                        salary: salary,
+                        salary: newSalary,
                         payable: payable,
-                        pl: pl
+                        pl: pl,
+                        commission: totalEarnings * 0.2
                       } : null);
                     }}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
