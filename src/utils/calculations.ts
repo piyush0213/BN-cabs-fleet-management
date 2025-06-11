@@ -46,7 +46,7 @@ export const calculatePayable = (
   openingBalance: number,
   roomRent: number
 ): number => {
-  const payable = cashCollection - salary - cng - petrol - otherExpenses + openingBalance - roomRent;
+  const payable = cashCollection + offlineEarnings - cng - petrol - otherExpenses + openingBalance + roomRent;
   return Math.round(payable * 100) / 100;
 };
 
