@@ -42,6 +42,7 @@ export interface Vehicle {
 }
 
 export interface Entry {
+  cash: any;
   id: string;
   date: string;
   driver: string;
