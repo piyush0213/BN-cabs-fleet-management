@@ -230,7 +230,6 @@ const WeeklySummaryPage: React.FC = () => {
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Vehicle</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Earnings</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Cash Collection</th>
-                <th className="px-3 py-3 text-left font-medium text-gray-700">Offline Cash</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Uber Commission</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Toll</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Trips</th>
@@ -251,7 +250,6 @@ const WeeklySummaryPage: React.FC = () => {
                     <td className="px-3 py-3 text-xs font-medium">{summary.vehicle}</td>
                     <td className="px-3 py-3 text-xs">{formatCurrency(summary.earnings)}</td>
                     <td className="px-3 py-3 text-xs">{formatCurrency(summary.cash)}</td>
-                    <td className="px-3 py-3 text-xs">{formatCurrency(summary.offlineCash)}</td>
                     <td className="px-3 py-3 text-xs">{formatCurrency(summary.uberCommission)}</td>
                     <td className="px-3 py-3 text-xs">{formatCurrency(summary.toll)}</td>
                     <td className="px-3 py-3 text-xs">{summary.trips}</td>
