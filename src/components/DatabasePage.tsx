@@ -153,9 +153,9 @@ const DatabasePage: React.FC = () => {
     // Calculate salary based on pay percent
     const salary = (totalEarnings * payPercent) / 100;
     
-    // Calculate payable: Cash Collection - Salary - CNG - Petrol - Other Expenses + Opening Balance + Room Rent
-    const payable = entry.cashCollection - salary - entry.cng - entry.petrol - 
-                   entry.otherExpenses + entry.openingBalance + entry.roomRent;
+    // Calculate payable: Cash Collection + Offline Cash - Salary - CNG - Petrol - Other Expenses + Opening Balance + Room Rent
+    const payable = entry.cashCollection + entry.offlineCash - salary - entry.cng - 
+                   entry.petrol - entry.otherExpenses + entry.openingBalance + entry.roomRent;
     
     // Calculate P&L: totalEarnings - Salary - CNG - Toll - Petrol - Other Expenses - 1080
     const pl = totalEarnings - salary - entry.cng - entry.toll - entry.petrol - 
@@ -227,12 +227,12 @@ const DatabasePage: React.FC = () => {
     const payPercent = calculatePayPercent(totalEarnings, updatedEntry.loginHours);
     const salary = (totalEarnings * payPercent) / 100;
     
-    // Calculate payable
-    const payable = updatedEntry.cashCollection - salary - updatedEntry.cng - 
-                   updatedEntry.petrol - updatedEntry.otherExpenses + 
+    // Calculate payable: Cash Collection + Offline Cash - Salary - CNG - Petrol - Other Expenses + Opening Balance + Room Rent
+    const payable = updatedEntry.cashCollection + updatedEntry.offlineCash - salary - 
+                   updatedEntry.cng - updatedEntry.petrol - updatedEntry.otherExpenses + 
                    updatedEntry.openingBalance + updatedEntry.roomRent;
     
-    // Calculate P&L
+    // Calculate P&L: totalEarnings - Salary - CNG - Toll - Petrol - Other Expenses - 1080
     const pl = totalEarnings - salary - updatedEntry.cng - updatedEntry.toll - 
                updatedEntry.petrol - updatedEntry.otherExpenses - 1080;
 
