@@ -90,22 +90,24 @@ const WeeklySummaryPage: React.FC = () => {
       const weekEntries = weeklyGroups[weekKey];
 
       const totalEarnings = weekEntries.reduce((sum, entry) => sum + (+entry.earnings || 0), 0);
-      const totalCash = weekEntries.reduce((sum, entry) => sum + (+entry.cash || 0), 0);
+      const totalCashCollection = weekEntries.reduce((sum, entry) => sum + (+entry.cashCollection || 0), 0);
+      const totalOfflineCash = weekEntries.reduce((sum, entry) => sum + (+entry.offlineCash || 0), 0);
       const totalToll = weekEntries.reduce((sum, entry) => sum + (+entry.toll || 0), 0);
       const totalTrips = weekEntries.reduce((sum, entry) => sum + (+entry.trips || 0), 0);
       const days = weekEntries.length;
-      const uberCommission = totalCash - totalEarnings;
+      const uberCommission = totalCashCollection - totalEarnings;
       const rent = calculateWeeklyRent(totalTrips);
       const insurance = 30 * days;
       const tds = tdsValues[weekKey] || 0;
-      const payable = rent * days + insurance + tds + uberCommission - totalToll;
+      const payable = totalCashCollection + totalOfflineCash - tds - totalToll;
 
       return {
         weekStart: weekStartStr,
         weekEnd: weekEndStr,
         vehicle,
         earnings: Math.round(totalEarnings * 100) / 100,
-        cash: Math.round(totalCash * 100) / 100,
+        cash: Math.round(totalCashCollection * 100) / 100,
+        offlineCash: Math.round(totalOfflineCash * 100) / 100,
         uberCommission: Math.round(uberCommission * 100) / 100,
         toll: Math.round(totalToll * 100) / 100,
         trips: totalTrips,
@@ -227,7 +229,8 @@ const WeeklySummaryPage: React.FC = () => {
                 <th className="px-3 py-3 text-left font-medium text-gray-700">To</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Vehicle</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Earnings</th>
-                <th className="px-3 py-3 text-left font-medium text-gray-700">Cash</th>
+                <th className="px-3 py-3 text-left font-medium text-gray-700">Cash Collection</th>
+                <th className="px-3 py-3 text-left font-medium text-gray-700">Offline Cash</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Uber Commission</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Toll</th>
                 <th className="px-3 py-3 text-left font-medium text-gray-700">Trips</th>
@@ -248,6 +251,7 @@ const WeeklySummaryPage: React.FC = () => {
                     <td className="px-3 py-3 text-xs font-medium">{summary.vehicle}</td>
                     <td className="px-3 py-3 text-xs">{formatCurrency(summary.earnings)}</td>
                     <td className="px-3 py-3 text-xs">{formatCurrency(summary.cash)}</td>
+                    <td className="px-3 py-3 text-xs">{formatCurrency(summary.offlineCash)}</td>
                     <td className="px-3 py-3 text-xs">{formatCurrency(summary.uberCommission)}</td>
                     <td className="px-3 py-3 text-xs">{formatCurrency(summary.toll)}</td>
                     <td className="px-3 py-3 text-xs">{summary.trips}</td>
