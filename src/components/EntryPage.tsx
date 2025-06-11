@@ -52,6 +52,7 @@ const EntryPage: React.FC = () => {
       formData.earnings,
       formData.offlineEarnings,
       formData.cashCollection,
+      formData.offlineCash,
       salary,
       formData.cng,
       formData.petrol,
