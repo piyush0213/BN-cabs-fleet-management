@@ -23,71 +23,86 @@ const WeeklySummaryPage: React.FC = () => {
 
   const getWeekStart = (date: Date): Date => {
     const d = new Date(date);
-    const dayOfWeek = d.getDay(); // 0 (Sunday) to 6 (Saturday)
-  
-    const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Shift to Monday
-    d.setDate(d.getDate() + diff);
-    d.setHours(0, 0, 0, 0);
-    return d;
+    // Get the day of the week (0 = Sunday, 1 = Monday, ..., 6 = Saturday)
+    const day = d.getDay();
+    
+    // Calculate days to subtract to get to Monday
+    // If it's Sunday (0), we need to go back 6 days to get to last Monday
+    // For other days, we need to go back (day - 1) days to get to Monday
+    const daysToSubtract = day === 0 ? 6 : day - 1;
+    
+    // Create new date and set to Monday
+    const monday = new Date(d);
+    monday.setDate(d.getDate() - daysToSubtract);
+    monday.setHours(0, 0, 0, 0);
+    return monday;
   };
-  
+
   const getWeekEnd = (date: Date): Date => {
-    const start = getWeekStart(date);
-    const end = new Date(start);
-    end.setDate(start.getDate() + 5); // Sunday
-    end.setHours(23, 59, 59, 999);
-    return end;
+    const monday = getWeekStart(date);
+    const sunday = new Date(monday);
+    sunday.setDate(monday.getDate() + 6);
+    sunday.setHours(23, 59, 59, 999);
+    return sunday;
   };
-  
-  
+
   const generateWeeklySummaries = () => {
     let filteredEntries = [...entries];
-  
-    // Apply filters
+
     if (filters.fromDate) {
       filteredEntries = filteredEntries.filter(entry => entry.date >= filters.fromDate);
     }
+
     if (filters.toDate) {
       filteredEntries = filteredEntries.filter(entry => entry.date <= filters.toDate);
     }
+
     if (filters.vehicle) {
       filteredEntries = filteredEntries.filter(entry => 
         entry.vehicle.toLowerCase().includes(filters.vehicle.toLowerCase())
       );
     }
-  
+
     // Group entries by week and vehicle
     const weeklyGroups: {[key: string]: Entry[]} = {};
-  
+
     filteredEntries.forEach(entry => {
       const entryDate = new Date(entry.date);
-      const weekStart = getWeekStart(entryDate);
-      const weekEnd = getWeekEnd(entryDate);
-      
-      const weekKey = `${weekStart.toISOString().split('T')[0]}_${weekEnd.toISOString().split('T')[0]}_${entry.vehicle}`;
-  
+      entryDate.setHours(0, 0, 0, 0); // Normalize to start of day
+
+      const dayOfWeek = entryDate.getDay(); // 0 for Sunday, 1 for Monday, ..., 6 for Saturday
+      const monday = new Date(entryDate);
+      monday.setDate(entryDate.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1)); // Adjust for Sunday being 0
+      monday.setHours(0, 0, 0, 0);
+
+      const sunday = new Date(monday);
+      sunday.setDate(monday.getDate() + 6);
+      sunday.setHours(23, 59, 59, 999);
+
+      const weekKey = `${monday.toISOString().split('T')[0]}_${sunday.toISOString().split('T')[0]}_${entry.vehicle}`;
+
       if (!weeklyGroups[weekKey]) {
         weeklyGroups[weekKey] = [];
       }
       weeklyGroups[weekKey].push(entry);
     });
-  
+
     // Calculate weekly summaries
     const summaries: WeeklySummary[] = Object.keys(weeklyGroups).map(weekKey => {
       const [weekStartStr, weekEndStr, vehicle] = weekKey.split('_');
       const weekEntries = weeklyGroups[weekKey];
-  
-      const totalEarnings = weekEntries.reduce((sum, entry) => sum + entry.earnings + entry.offlineEarnings, 0);
-      const totalCash = weekEntries.reduce((sum, entry) => sum + entry.cashCollection, 0);
-      const totalToll = weekEntries.reduce((sum, entry) => sum + entry.toll, 0);
-      const totalTrips = weekEntries.reduce((sum, entry) => sum + entry.trips, 0);
+
+      const totalEarnings = weekEntries.reduce((sum, entry) => sum + (+entry.earnings || 0), 0);
+      const totalCash = weekEntries.reduce((sum, entry) => sum + (+entry.cash || 0), 0);
+      const totalToll = weekEntries.reduce((sum, entry) => sum + (+entry.toll || 0), 0);
+      const totalTrips = weekEntries.reduce((sum, entry) => sum + (+entry.trips || 0), 0);
       const days = weekEntries.length;
       const uberCommission = totalCash - totalEarnings;
       const rent = calculateWeeklyRent(totalTrips);
       const insurance = 30 * days;
       const tds = tdsValues[weekKey] || 0;
       const payable = rent * days + insurance + tds + uberCommission - totalToll;
-  
+
       return {
         weekStart: weekStartStr,
         weekEnd: weekEndStr,
@@ -104,10 +119,10 @@ const WeeklySummaryPage: React.FC = () => {
         payable: Math.round(payable * 100) / 100
       };
     });
-  
+
     // Sort by week start date descending
     summaries.sort((a, b) => new Date(b.weekStart).getTime() - new Date(a.weekStart).getTime());
-  
+
     setWeeklySummaries(summaries);
   };
 
