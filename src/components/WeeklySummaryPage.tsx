@@ -98,7 +98,7 @@ const WeeklySummaryPage: React.FC = () => {
       const rent = calculateWeeklyRent(totalTrips);
       const insurance = 30 * days;
       const tds = tdsValues[weekKey] || 0;
-      const payable = rent * days + insurance + tds - uberCommission - totalToll;
+      const payable = rent * days + insurance + tds + uberCommission - totalToll;
 
       return {
         weekStart: weekStartStr,
