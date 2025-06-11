@@ -59,12 +59,11 @@ export const calculatePL = (
   offlineEarnings: number,
   salary: number,
   cng: number,
-  toll: number,
   petrol: number,
   otherExpenses: number
 ): number => {
   const totalEarnings = earnings + offlineEarnings;
-  const pl = totalEarnings - salary - cng - toll - petrol - otherExpenses - 1080;
+  const pl = totalEarnings - salary - cng - petrol - otherExpenses - 1080;
   return Math.round(pl * 100) / 100;
 };
 
